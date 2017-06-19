@@ -3,15 +3,22 @@ I_leg_out = I_Meat;
 I_meat_out = I_Meat;
 I_leg_map = I_crab_map & (~I_Meat.map);
 I_leg_map = imfill(I_leg_map,'holes');
-A = uint8(I_Meat.map) .* I_Meat.a;
+ROI = I_Meat.a .* uint8(I_leg_map);
+%A = BDND(ROI, I_leg_map, 100);
+A = Augment(ROI, I_leg_map);
+A = AMF(A, I_leg_map);
 
-
-
-
-
-
+effective_num = nonzeros(A);
+hist = zeros(256,1);
+for ii=1:length(effective_num)
+    hist(effective_num(ii)+1)=hist(effective_num(ii)+1)+1;
+end
+[hist_value,level_index]=max(hist);
+level=(level_index-1+15)/256;
+A_filter=I_Meat.a.*uint8((im2bw(A,level)));
 
 
 I_meat_map = I_crab_map & (~I_leg_map);
+I_leg_out.Augment = uint8(A);
 I_leg_out.map = I_leg_map;
 I_meat_out.map = I_meat_map;
