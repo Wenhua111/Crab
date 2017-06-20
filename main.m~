@@ -6,7 +6,48 @@ for i=1:25
     I_Raw = imread(['./RawImage/' file_name]);
     I_Raw = Image_Preprocessing(I_Raw); % Change to Class I_Raw, which includes Height, Width, RGB, HSV, Lab, ROI map
     I_crab_body = Crab_Extract(I_Raw);
+    I_meat = Meat_Extract(I_crab_body);
+    I_leg = Leg_Extract(I_meat, I_crab_body.map);
+    I_knckle = knckle_Extract(I_leg, I_meat);
+    D = -bwdist(~I_knckle.map);
+
+    mask = imextendedmin(D,2);
+    D2 = imimposemin(D,mask);
+    Ld2 = watershed(D2);
+
+    bw3 = I_knckle.map;
+    bw3(Ld2 == 0) = 0;
+    bw4= bw3;
+    
+    bw3_handle=regionprops(bw3,'Centroid', 'PixelList');
+    
+
+    
+    for ii=1:length(bw3_handle)
+        pL = bw3_handle(ii).PixelList;
+        x = pL(:,1);
+        y = pL(:,2);
+        count = 0;
+        if(~((max(y)>(I_meat.center.y - 4*I_meat.r/3)) && (min(y) < (I_meat.center.y + 4*I_meat.r/3))))
+            for jj=1:length(x)
+                count = count+1;
+                bw4(y(jj), x(jj)) = 0;
+            end
+        end
+    end
+    bw4 = bwareaopen(bw4, 100);       
+    
+    
+    %L=watershed(D);
+    %rgb = label2rgb(L,'jet',[.5 .5 .5]);  
+    %Lrgb = label2rgb(L);
+    %I_write = uint8(I_knckle.map).*I_Raw.Raw;
     figure(i)
-    L = I_Ra
-    imshow(uint8(I_crab_body.map).*I_Raw.Raw);
+    imshow(I_leg.Raw.*uint8(bw4))
+%     rgb = label2rgb(Ld2,'jet',[.5 .5 .5]);  
+%     imshow(rgb,'InitialMagnification','fit')  
+    %hold on
+    %imcontour(D)
+    %hold off
+    imwrite(I_write, ['./knuckle/' file_name])
 end

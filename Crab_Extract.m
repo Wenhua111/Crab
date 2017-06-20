@@ -32,6 +32,9 @@ end
 I_crab_template = bwareaopen(I_crab_template, max(I_S_area));
 erode_kernal = strel('disk', 4);
 I_crab_template = imdilate(I_crab_template, erode_kernal);
+
 I_crab_template = imfill(I_crab_template,'holes');
 I_class_out.map = I_crab_template;
+
+
       
