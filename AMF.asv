@@ -4,35 +4,42 @@ height=size(I,1);
 width=size(I,2);
 I=double(I);
 I_copy=I;
-MAX_window_size =5;
+MAX_window_size = 5;
 for i=1:height
     for j=1:width
         if(I_map(i,j)~=0)
             for ii=1:MAX_window_size
                 count=0;
-                AMF_W=0;
+                window=0;
                 for iii=max(i-ii,1):min(i+ii,height)
                     for jjj=max(j-ii,1):min(j+ii,width)
                         if(I_map(iii,jjj)~=0)
                             count=count+1;
-                            AMF_W(count) = I(iii,jjj);
+                            window(count) = I(iii,jjj);
                         end
                     end
                 end
-                sminw=min(AMF_W);
-                smaxw=max(AMF_W);
-                smedw=median(AMF_W);
+                sminw=min(window);
+                smaxw=max(window);
+                smedw=median(window);
                 if((sminw<smedw)&&(smedw<smaxw))
-                    if(~((I(i,j)>sminw)&&(I(i,j)<smaxw)))
-                        I(i,j)=smedw;
+                    if((I(i,j)>sminw)&&(I(i,j)<smaxw))
+                        y_noise(i,j)=0;
+                    else
+                        y_noise(i,j)=1;
+                        I_copy(i,j)=smedw;
                     end
                     break;
                 end
+%                 if(i==MAX_window_size)
+%                     I_copy(ii,jj)=smedw;
+%                 end
             end
         end
     end
 end
-I_out=uint8(I);
+I_out=uint8(I_copy);
+noise_candidate=y_noise;
                 
                     
                 

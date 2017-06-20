@@ -13,5 +13,5 @@ for i=1:25
     %figure(i)
     %imshow(I_leg.map)
     %imshow(uint8(I_knckle.map).*I_Raw.Raw);
-    imwrite(I_write, ['./knuckle/' file_name])
+    imwrite(['./knuckle' filename])
 end
