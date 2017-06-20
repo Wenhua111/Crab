@@ -8,7 +8,8 @@ for i=1:25
     I_crab_body = Crab_Extract(I_Raw);
     I_meat = Meat_Extract(I_crab_body);
     [I_leg, I_meat] = Leg_Extract(I_meat, I_crab_body.map);
+    I_knckle = knckle_Extract(I_leg);
     figure(i)
     %imshow(I_meat.map)
-    imshow(I_leg.Augment);
+    imshow(uint8(I_knckle.map) .* I_knckle.Raw);
 end

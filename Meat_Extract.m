@@ -15,7 +15,7 @@ r= sqrt(sum(sum(I_meat_template)) / pi);
 I_circle_filter=zeros(I_class.Height,I_class.Width);
 for i=1:I_class.Height
     for j=1:I_class.Width
-        r_temp=sqrt(((i-meat_center.y)^2)/((1.2*r)^2) + ((j-meat_center.x)^2)/((1*r)^2));
+        r_temp=sqrt(((i-meat_center.y)^2)/((1.1*r)^2) + ((j-meat_center.x)^2)/((1*r)^2));
         if((r_temp<=1))
             I_circle_filter(i,j)=1;
         end 
