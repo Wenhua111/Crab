@@ -9,13 +9,13 @@ kernal = strel('disk', 4);
 I_meat_template_temp = I_meat_template;
 I_meat_template = imopen(I_meat_template, kernal);
 I_meat_template = imfill(I_meat_template,'holes');
-I_meat_template = bwareaopen(I_meat_template, 100);
+I_meat_template = bwareaopen(I_meat_template, 200);
 meat_center = center(I_meat_template);
-r= sqrt(sum(sum(I_meat_template)) / pi);
+r= sqrt(sum(sum(I_meat_template)) / (pi*4/3));
 I_circle_filter=zeros(I_class.Height,I_class.Width);
 for i=1:I_class.Height
     for j=1:I_class.Width
-        r_temp=sqrt(((i-meat_center.y)^2)/((1.1*r)^2) + ((j-meat_center.x)^2)/((1*r)^2));
+        r_temp=sqrt(((i-meat_center.y)^2)/((4*r/3)^2) + ((j-meat_center.x)^2)/((1*r)^2));
         if((r_temp<=1))
             I_circle_filter(i,j)=1;
         end 

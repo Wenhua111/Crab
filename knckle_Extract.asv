@@ -38,10 +38,7 @@ for i = 1 : I_leg.Height
 end
 
 kernal = strel('disk', 4);
-I_knckle.map = imclose(I_knckle.map, kernal);
-I_knckle.map = bwareaopen(I_knckle.map, 150);
-I_knckle.map = imfill(I_knckle.map,'holes');
-%I_knckle.map = I_knckle.map & (~ bwareaopen(I_knckle.map, 1000));
+I_knckle.map = imopen(I_knckle.map, kernal);
 
 % 
 % effective_num = nonzeros(A);
