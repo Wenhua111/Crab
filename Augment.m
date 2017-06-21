@@ -8,7 +8,7 @@ I_copy=I;
 beta = 20;
 level=nonzeros(I);
 level=sort(level);
-level_1 = level(floor(end*0.7));
+level_1 = level(floor(end*0.8));
 %level_2 = level(floor(end*0.2));
 
 for i=1:height

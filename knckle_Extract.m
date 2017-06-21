@@ -62,14 +62,14 @@ I_knckle.map = bwareaopen(I_knckle.map, 200);
 
 
 % I_knckle.map = bwareaopen(I_knckle.map, 300);
-I_knckle.map((I_meat.center.y - 0.6*I_meat.r):(I_meat.center.y + 0.6*I_meat.r),:)=0;
+%I_knckle.map((I_meat.center.y - 0.6*I_meat.r):(I_meat.center.y + 0.6*I_meat.r),:)=0;
 I_knckle.map((I_meat.center.y + 1.6*I_meat.r):end,:)=0;
 I_knckle.map(1:(I_meat.center.y - 1.6*I_meat.r),:)=0;
 I_knckle.map(:,(I_meat.center.x - 0.6*I_meat.r):(I_meat.center.x + 0.6*I_meat.r))=0;
 
-% I_knckle.map = bwareaopen(I_knckle.map, 300);
-% erode_kernal = strel('disk', 3);
-% I_knckle.map = imdilate(I_knckle.map, erode_kernal);
+%I_knckle.map = bwareaopen(I_knckle.map, 300);
+erode_kernal = strel('disk', 2);
+I_knckle.map = imdilate(I_knckle.map, erode_kernal);
 % I_knckle.map = bwareaopen(I_knckle.map, 300);
 
 
@@ -81,75 +81,180 @@ for i = 1:length(bw_handle)
     PL = bw_handle(i).PixelList;
     x = PL(:,1);
     y = PL(:,2);
+    sort_y = sort(y);
+    
     area =  bw_handle(i).Area;
     long_axis = bw_handle(i).MajorAxisLength;
     short_axis = bw_handle(i).MinorAxisLength;
-    ratio = (1*area)/(pi*long_axis*short_axis);
+    ratio = (4*area)/(pi*long_axis*short_axis);
+    lwratio = (max(x) - min(x)) / (max(y) - min(y));
+    elwratio = long_axis / short_axis;
+    
     if((region_center(1) < (I_meat.center.x + 0.7*I_meat.r)) && (region_center(1) > (I_meat.center.x - 0.7*I_meat.r)))
         for ii = 1:length(x)
             bw(y,x) = 0;
         end
-    end
-    if((region_center(2) < (I_meat.center.y + 0.6*I_meat.r)) && (region_center(2) > (I_meat.center.y - 0.6*I_meat.r)))
+    elseif((region_center(2) < (I_meat.center.y + 0.6*I_meat.r)) && (region_center(2) > (I_meat.center.y - 0.6*I_meat.r)))
+        for ii = 1:length(x)
+            bw(y,x) = 0;
+        end
+    elseif((((I_meat.center.y - 0.6*I_meat.r) < sort_y(ceil(length(sort_y)*0.2))) && (sort_y(ceil(length(sort_y)*0.2)) < (I_meat.center.y + 0.6*I_meat.r))) || (((I_meat.center.y - 0.6*I_meat.r) < sort_y(ceil(length(sort_y)*0.8))) && (sort_y(ceil(length(sort_y)*0.8)) < (I_meat.center.y + 0.6*I_meat.r))))
+        for ii = 1:length(x)
+            bw(y,x) = 0;
+        end
+%     elseif(eccent > 0.97)
+%         for ii = 1:length(x)
+%             bw(y,x) = 0;
+%         end
+    elseif((lwratio < 0.333) && (ratio > 0.7))
+        for ii = 1:length(x)
+            bw(y,x) = 0;
+        end
+    elseif((elwratio > 3) && (ratio > 0.7))
         for ii = 1:length(x)
             bw(y,x) = 0;
         end
     end
-%     if(ratio > 0.7)
-%         for ii = 1:length(x)
-%             bw(y,x) = 0;
-%         end
-%     end
 end
- 
-I_knckle.map = bw;
-kernal = strel('disk', 5);
-I_knckle.map = imdilate(I_knckle.map, kernal);
+%  
+% I_knckle.map = bw;
+% kernal = strel('disk', 5);
+% I_knckle.map = imdilate(I_knckle.map, kernal);
+% 
+% bw = I_knckle.map;
+% D = -bwdist(~bw);
+% mask = imextendedmin(D,2);
+% D2 = imimposemin(D,mask);
+% Ld = watershed(D2);
+% bw(Ld == 0) = 0;
+% I_knckle.map = bw;
+% kernal = strel('disk', 5);
+% I_knckle.map = imerode(I_knckle.map, kernal);
+% I_knckle.map = bwareaopen(I_knckle.map, 200);
+% 
 
-bw = I_knckle.map;
+%  I_knckle.map = bw;
+%  kernal = strel('disk', 4);
+%  I_knckle.map = imdilate(I_knckle.map, kernal);
+% I_knckle.map = bwareaopen(I_knckle.map, 200);
+% 
+% 
+% 
+% 
+
+I_knckle.map = bw;
+erode_kernal = strel('disk', 6);
+I_knckle.map = imdilate(I_knckle.map, erode_kernal);
+% erode_kernal = strel('disk', 2);
+% I_knckle.map = imerode(I_knckle.map, erode_kernal);
+
+bw_up = logical(zeros(I_meat.Height, I_meat.Width));
+bw_up(1:I_meat.Height/2,:) = I_knckle.map(1:I_meat.Height/2,:);
+bw_up_handle = regionprops(bw_up, 'Area', 'Centroid');
+up_Area = 0;
+
+if(length(bw_up_handle)>1)
+    for i = 1:length(bw_up_handle)
+        up_Area(i) = bw_up_handle(i).Area;
+    end
+    sort_area = sort(up_Area);
+    bw_up = bwareaopen(bw_up, sort_area(2));
+end
+
+
+
+
+
+bw_down = logical(zeros(I_meat.Height, I_meat.Width));
+bw_down(I_meat.Height/2:end,:) = I_knckle.map(I_meat.Height/2:end,:);
+bw_down_handle = regionprops(bw_down, 'Area', 'Centroid','PixelList');
+down_Area = 0;
+
+if(length(bw_down_handle)>1)
+    for i = 1:length(bw_down_handle)
+        down_Area(i) = bw_down_handle(i).Area;
+    end
+    sort_area = sort(down_Area);
+    bw_down = bwareaopen(bw_down, sort_area(2));
+end
+
+
+
+bw = bw_up;
 D = -bwdist(~bw);
 mask = imextendedmin(D,2);
 D2 = imimposemin(D,mask);
 Ld = watershed(D2);
 bw(Ld == 0) = 0;
-I_knckle.map = bw;
-kernal = strel('disk', 5);
-I_knckle.map = imerode(I_knckle.map, kernal);
-I_knckle.map = bwareaopen(I_knckle.map, 200);
-
-bw = I_knckle.map;
-bw_handle = regionprops(bw, 'Centroid', 'PixelList','Eccentricity','MajorAxisLength','MinorAxisLength','Area');
-for i = 1:length(bw_handle)
-    region_center = bw_handle(i).Centroid;
-    eccent = bw_handle(i).Eccentricity;
+bw_handle = regionprops(bw, 'Centroid', 'PixelList');
+center_y = 0;
+for i=1:length(bw_handle)
+    center_y(i) = bw_handle(i).Centroid(2);
+end
+[max_center_y,max_center_y_index] = max(center_y);
+for i=1:length(bw_handle)
     PL = bw_handle(i).PixelList;
     x = PL(:,1);
     y = PL(:,2);
-    area =  bw_handle(i).Area;
-    long_axis = bw_handle(i).MajorAxisLength;
-    short_axis = bw_handle(i).MinorAxisLength;
-    ratio = (1*area)/(pi*long_axis*short_axis);
-    if((region_center(1) < (I_meat.center.x + 0.7*I_meat.r)) && (region_center(1) > (I_meat.center.x - 0.7*I_meat.r)))
-        for ii = 1:length(x)
-            bw(y,x) = 0;
-        end
-    end
-    if((region_center(2) < (I_meat.center.y + 0.7*I_meat.r)) && (region_center(2) > (I_meat.center.y - 0.7*I_meat.r)))
-        for ii = 1:length(x)
-            bw(y,x) = 0;
-        end
-    end
-    if(eccent > 0.9)
+    if(i~=max_center_y_index)
         for ii = 1:length(x)
             bw(y,x) = 0;
         end
     end
 end
-I_knckle.map = bw;
-I_knckle.map = bwareaopen(I_knckle.map, 200);
-% 
-% 
-% 
-% 
-% I_knckle.map = bw;
+bw_up = bw;
+
+
+
+
+bw = bw_down;
+D = -bwdist(~bw);
+mask = imextendedmin(D,2);
+D2 = imimposemin(D,mask);
+Ld = watershed(D2);
+bw(Ld == 0) = 0;
+bw_handle = regionprops(bw, 'Centroid', 'PixelList');
+center_y = 0;
+for i=1:length(bw_handle)
+    center_y(i) = bw_handle(i).Centroid(2);
+end
+[min_center_y,min_center_y_index] = min(center_y);
+for i=1:length(bw_handle)
+    PL = bw_handle(i).PixelList;
+    x = PL(:,1);
+    y = PL(:,2);
+    if(i~=min_center_y_index)
+        for ii = 1:length(x)
+            bw(y,x) = 0;
+        end
+    end
+end
+bw_down = bw;
+I_knckle.map = bw_up | bw_down;
+
+
+
+
+        
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 % I_knckle.map = bwareaopen(I_knckle.map, 300);

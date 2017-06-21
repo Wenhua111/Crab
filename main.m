@@ -24,7 +24,7 @@ for i=1:25
             end
         end
     end
-    %figure(i)
-    %imshow(I_knckle.Raw)
+    figure(i)
+    imshow(I_knckle.Raw)
     imwrite(I_knckle.Raw, ['./knuckle_label/' file_name])
 end
