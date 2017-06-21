@@ -23,3 +23,6 @@ for i=1:I_class.Height
 end
 I_meat_template = I_circle_filter | I_meat_template_temp;
 I_class_out.map = I_meat_template;
+I_class_out.center = meat_center;
+I_class_out.r = r;
+
